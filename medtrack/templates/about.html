@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About Us - MedTrack</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+  <style>
+    /* Your original styles (unchanged) */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #2d3748;
+      display: flex;
+      flex-direction: column;
+    }
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: white;
+      text-decoration: none;
+    }
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .nav-links a:hover {
+      color: #ffd700;
+    }
+    .auth-buttons {
+      display: flex;
+      gap: 1rem;
+    }
+    .auth-buttons a {
+      padding: 0.5rem 1rem;
+      border-radius: 30px;
+      font-weight: 500;
+      text-decoration: none;
+      border: 2px solid white;
+      color: white;
+      transition: 0.3s ease;
+    }
+    .auth-buttons a:hover {
+      background: white;
+      color: #667eea;
+    }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+      flex-grow: 1;
+    }
+    .header {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      animation: fadeInDown 0.8s ease-out;
+    }
+    .header h1 {
+      color: white;
+      font-size: 2.8rem;
+      font-weight: 700;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-bottom: 10px;
+    }
+    .header p {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 1.1rem;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      margin-bottom: 30px;
+      animation: fadeInUp 0.8s ease-out;
+    }
+    .card h2 {
+      font-size: 2rem;
+      color: #333;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .card p {
+      font-size: 1.1rem;
+      line-height: 1.8;
+      color: #4a5568;
+      margin-bottom: 15px;
+    }
+    .card ul {
+      list-style: none;
+      padding-left: 20px;
+      margin-bottom: 15px;
+    }
+    .card ul li {
+      position: relative;
+      margin-bottom: 10px;
+      color: #4a5568;
+      font-size: 1.05rem;
+    }
+    .card ul li::before {
+      content: '✓';
+      position: absolute;
+      left: -20px;
+      color: #667eea;
+      font-weight: bold;
+    }
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-top: 30px;
+    }
+    .team-member {
+      background: white;
+      border-radius: 15px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      border: 1px solid #e2e8f0;
+      transition: transform 0.3s ease;
+    }
+    .team-member:hover {
+      transform: translateY(-5px);
+    }
+    .team-member img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 15px;
+      border: 3px solid #667eea;
+    }
+    .team-member h4 {
+      font-size: 1.2rem;
+      color: #333;
+      margin-bottom: 5px;
+    }
+    .team-member p {
+      font-size: 0.9rem;
+      color: #666;
+    }
+    .footer {
+      text-align: center;
+      padding: 20px;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.9rem;
+      margin-top: auto;
+    }
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @media (max-width: 768px) {
+      .header h1 { font-size: 2.2rem; }
+      .card h2 { font-size: 1.8rem; }
+      .card p, .card ul li { font-size: 1rem; }
+      .team-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ✅ Navigation Bar -->
+  <nav>
+    <a href="/" class="logo"><i class="fas fa-notes-medical"></i> MedTrack</a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/about">About</a>
+      <a href="/contactus">Contact</a>
+    </div>
+    <div class="auth-buttons">
+      <a href="/login">Login</a>
+      <a href="/signup">Sign Up</a>
+    </div>
+  </nav>
+
+  <!-- ✅ Main Content -->
+  <div class="container">
+    <div class="header">
+      <h1><i class="fas fa-info-circle"></i> About MedTrack</h1>
+      <p>Your trusted partner in modern healthcare management</p>
+    </div>
+
+    <div class="card">
+      <h2>Our Mission</h2>
+      <p>At MedTrack, our mission is to revolutionize healthcare accessibility and efficiency by bridging the communication gap between patients and doctors. We strive to empower individuals with seamless control over their health journey, ensuring timely care and informed decisions.</p>
+      <p>We believe that technology can simplify complex healthcare processes, making them more transparent and user-friendly for everyone involved.</p>
+    </div>
+
+    <div class="card">
+      <h2>What We Offer</h2>
+      <p>MedTrack provides a comprehensive cloud-based platform designed to streamline various aspects of patient-doctor interaction:</p>
+      <ul>
+        <li><strong>Effortless Appointment Booking:</strong> Schedule and manage your consultations with ease.</li>
+        <li><strong>Centralized Medical Records:</strong> Keep your medical history, prescriptions, and test results organized in one secure place.</li>
+        <li><strong>Secure Diagnosis Submissions:</strong> Submit and receive diagnosis reports online, ensuring privacy and quick access.</li>
+        <li><strong>Real-time Notifications:</strong> Stay updated with instant alerts on appointments, diagnoses, and important health reminders.</li>
+        <li><strong>Enhanced Communication:</strong> Facilitate clear and direct communication channels between patients and healthcare providers.</li>
+        <li><strong>Robust Security:</strong> Your data is protected with advanced encryption and access controls (AWS IAM).</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Our Vision</h2>
+      <p>We envision a future where healthcare is not just reactive but proactive, where every patient feels connected and supported throughout their wellness journey. MedTrack aims to be at the forefront of this transformation, continually innovating to meet the evolving needs of the healthcare landscape.</p>
+      <p>By leveraging cloud technology (AWS EC2, DynamoDB), we ensure scalability, reliability, and global accessibility, making quality healthcare management available to all.</p>
+    </div>
+
+    <div class="card">
+      <h2>The MedTrack Team</h2>
+      <div class="team-grid">
+        <div class="team-member">
+          <img src="https://placehold.co/100x100/667eea/ffffff?text=JD" alt="John Doe">
+          <h4>Dr. John Doe</h4>
+          <p>Chief Medical Advisor</p>
+        </div>
+        <div class="team-member">
+          <img src="https://placehold.co/100x100/764ba2/ffffff?text=JS" alt="Jane Smith">
+          <h4>Jane Smith</h4>
+          <p>Lead Software Engineer</p>
+        </div>
+        <div class="team-member">
+          <img src="https://placehold.co/100x100/667eea/ffffff?text=AM" alt="Alex Miller">
+          <h4>Alex Miller</h4>
+          <p>Product Manager</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ Footer -->
+  <footer class="footer">
+    &copy; 2025 MedTrack. All rights reserved.
+  </footer>
+
+</body>
+</html>

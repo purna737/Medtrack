@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Appointments - MedTrack</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #2d3748;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            flex-grow: 1;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2.8rem;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .card-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .icon {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            color: #475569;
+            font-weight: 600;
+            padding: 15px 12px;
+            text-align: left;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table td {
+            padding: 15px 12px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.95rem;
+        }
+
+        .table tr:hover {
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.4em 0.8em;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        .status-scheduled { background-color: #dbeafe; color: #1e40af; } /* Blue */
+        .status-completed { background-color: #d1fae5; color: #065f46; } /* Green */
+        .status-cancelled { background-color: #fee2e2; color: #991b1b; } /* Red */
+        .status-pending { background-color: #fffbeb; color: #92400e; } /* Yellow/Orange */
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .action-btn.reschedule {
+            background-color: #e0f2fe;
+            color: #0277bd;
+        }
+        .action-btn.reschedule:hover {
+            background-color: #b3e5fc;
+        }
+
+        .action-btn.cancel {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        .action-btn.cancel:hover {
+            background-color: #ffcdd2;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #64748b;
+        }
+
+        .empty-state .icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            font-size: 24px;
+            background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            color: #64748b;
+        }
+
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #e2e8f0;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        .alert-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .alert {
+            padding: 16px 20px;
+            border-radius: 12px;
+            font-weight: 500;
+            display: block;
+            opacity: 0;
+            transform: translateX(20px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .alert.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            margin-top: auto;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.2rem;
+            }
+            .card-title {
+                font-size: 1.5rem;
+            }
+            .container {
+                padding: 15px;
+            }
+            .card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-calendar-alt"></i> My Appointments</h1>
+            <p>View and manage all your scheduled medical appointments.</p>
+        </div>
+
+        <div id="alertContainer" class="alert-container"></div>
+
+        <div class="card">
+            <h3 class="card-title">
+                <div class="icon"><i class="fas fa-list-alt"></i></div>
+                Your Appointments
+            </h3>
+            
+            <div id="appointmentsList" class="table-container">
+                {% if appointments %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Doctor</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for appt in appointments %}
+                        <tr>
+                            <td>{{ appt.doctor_name }}</td>
+                            <td>{{ appt.date }}</td>
+                            <td>{{ appt.time }}</td>
+                            <td>{{ appt.reason }}</td>
+                            <td><span class="status-badge status-{{ appt.status|lower }}">{{ appt.status }}</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    {% if appt.status == 'Scheduled' %}
+                                    <button class="action-btn reschedule" onclick="rescheduleAppointment('{{ appt.id }}')">
+                                        <i class="fas fa-sync-alt"></i> Reschedule
+                                    </button>
+                                    <button class="action-btn cancel" onclick="cancelAppointment('{{ appt.id }}')">
+                                        <i class="fas fa-times-circle"></i> Cancel
+                                    </button>
+                                    {% else %}
+                                    -
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <div class="icon"><i class="fas fa-calendar-alt"></i></div>
+                    <p>You have no appointments scheduled yet. <a href="/appointment">Book your first appointment!</a></p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        &copy; 2025 MedTrack. All rights reserved.
+    </footer>
+
+    <script>
+        function rescheduleAppointment(appointmentId) {
+            // In a real app, this would open a modal or redirect to a reschedule form
+            showAlert(`Reschedule functionality for appointment ${appointmentId} would be implemented here.`, 'success');
+            console.log('Reschedule appointment:', appointmentId);
+        }
+
+        function cancelAppointment(appointmentId) {
+            // In a real app, this would confirm with the user and then send a request to the backend
+            if (confirm('Are you sure you want to cancel this appointment?')) {
+                showAlert(`Cancellation request for appointment ${appointmentId} sent.`, 'success');
+                console.log('Cancel appointment:', appointmentId);
+                // Simulate updating the status
+                const apptIndex = appointments.findIndex(a => a.id === appointmentId);
+                if (apptIndex !== -1) {
+                    appointments[apptIndex].status = 'Cancelled';
+                    renderAppointments(); // Re-render the list
+                }
+            }
+        }
+
+        // Mock data for client-side updates (for demonstration)
+        let appointments = [
+            { id: 'app1', doctor_name: 'Dr. Emily White', date: '2025-07-10', time: '10:00 AM', reason: 'General Check-up', status: 'Scheduled' },
+            { id: 'app2', doctor_name: 'Dr. John Davis', date: '2025-07-15', time: '02:30 PM', reason: 'Follow-up on X-ray', status: 'Scheduled' },
+            { id: 'app_old1', doctor_name: 'Dr. Sarah Lee', date: '2025-06-01', time: '09:00 AM', reason: 'Vaccination', status: 'Completed' },
+            { id: 'app_old2', doctor_name: 'Dr. Alex Green', date: '2025-05-20', time: '01:00 PM', reason: 'Annual Physical', status: 'Cancelled' }
+        ];
+
+        function renderAppointments() {
+            const appointmentsListDiv = document.getElementById('appointmentsList');
+            if (appointments.length === 0) {
+                appointmentsListDiv.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon"><i class="fas fa-calendar-alt"></i></div>
+                        <p>You have no appointments scheduled yet. <a href="/appointment">Book your first appointment!</a></p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Doctor</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            appointments.forEach(appt => {
+                html += `
+                    <tr>
+                        <td>${appt.doctor_name}</td>
+                        <td>${appt.date}</td>
+                        <td>${appt.time}</td>
+                        <td>${appt.reason}</td>
+                        <td><span class="status-badge status-${appt.status.toLowerCase()}">${appt.status}</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                ${appt.status === 'Scheduled' ? `
+                                <button class="action-btn reschedule" onclick="rescheduleAppointment('${appt.id}')">
+                                    <i class="fas fa-sync-alt"></i> Reschedule
+                                </button>
+                                <button class="action-btn cancel" onclick="cancelAppointment('${appt.id}')">
+                                    <i class="fas fa-times-circle"></i> Cancel
+                                </button>
+                                ` : '-'}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            html += `</tbody></table>`;
+            appointmentsListDiv.innerHTML = html;
+        }
+
+        // Call renderAppointments on page load if you want client-side rendering
+        // document.addEventListener('DOMContentLoaded', renderAppointments);
+
+
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alertContainer');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert ${type}`;
+            alertDiv.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${message}`;
+            
+            alertContainer.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.style.opacity = '1';
+                alertDiv.style.transform = 'translateX(0)';
+            }, 10);
+            
+            setTimeout(() => {
+                alertDiv.style.opacity = '0';
+                alertDiv.style.transform = 'translateX(20px)';
+                setTimeout(() => alertDiv.remove(), 300);
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

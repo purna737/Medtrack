@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Details - MedTrack</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #2d3748;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            flex-grow: 1;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2.8rem;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .card-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .icon {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 1.05rem;
+            color: #4a5568;
+        }
+
+        .detail-item:last-of-type {
+            border-bottom: none;
+        }
+
+        .detail-item strong {
+            color: #333;
+            flex-basis: 30%;
+        }
+
+        .detail-item span {
+            flex-basis: 70%;
+            text-align: right;
+        }
+
+        .section-header {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #333;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-header i {
+            color: #667eea;
+        }
+
+        .list-item {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .list-item strong {
+            color: #333;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .list-item span {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px 20px;
+            color: #64748b;
+            font-style: italic;
+        }
+
+        .alert-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .alert {
+            padding: 16px 20px;
+            border-radius: 12px;
+            font-weight: 500;
+            display: block;
+            opacity: 0;
+            transform: translateX(20px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .alert.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            margin-top: auto;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.2rem;
+            }
+            .card-title {
+                font-size: 1.5rem;
+            }
+            .container {
+                padding: 15px;
+            }
+            .card {
+                padding: 20px;
+            }
+            .detail-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+            .detail-item span {
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-user-injured"></i> Patient Profile: {{ patient.name }}</h1>
+            <p>Comprehensive overview of {{ patient.name }}'s medical information.</p>
+        </div>
+
+        <div id="alertContainer" class="alert-container"></div>
+
+        <div class="main-grid">
+            <div class="card">
+                <h3 class="card-title">
+                    <div class="icon"><i class="fas fa-info-circle"></i></div>
+                    Personal Information
+                </h3>
+                <div class="detail-item">
+                    <strong>Email:</strong> <span>{{ patient.email }}</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Date of Birth:</strong> <span>{{ patient.dob }}</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Gender:</strong> <span>{{ patient.gender }}</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Phone:</strong> <span>{{ patient.phone }}</span>
+                </div>
+                <div class="detail-item">
+                    <strong>Address:</strong> <span>{{ patient.address }}</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">
+                    <div class="icon"><i class="fas fa-history"></i></div>
+                    Medical History
+                </h3>
+                {% if patient.medical_history %}
+                    {% for condition in patient.medical_history %}
+                        <div class="list-item">
+                            <strong>Condition:</strong> <span>{{ condition.condition }}</span><br>
+                            <strong>Diagnosed:</strong> <span>{{ condition.diagnosed_date }}</span><br>
+                            <span><em>Notes: {{ condition.notes }}</em></span>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">No significant medical history recorded.</div>
+                {% endif %}
+
+                <h4 class="section-header"><i class="fas fa-pills"></i> Medications</h4>
+                {% if patient.medications %}
+                    {% for med in patient.medications %}
+                        <div class="list-item">
+                            <strong>{{ med.name }}</strong><br>
+                            <span>Dosage: {{ med.dosage }}</span><br>
+                            <span>Frequency: {{ med.frequency }}</span>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">No current medications.</div>
+                {% endif %}
+
+                <h4 class="section-header"><i class="fas fa-allergies"></i> Allergies</h4>
+                {% if patient.allergies %}
+                    <div class="list-item">
+                        <span>{{ patient.allergies|join(', ') }}</span>
+                    </div>
+                {% else %}
+                    <div class="empty-state">No known allergies.</div>
+                {% endif %}
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">
+                    <div class="icon"><i class="fas fa-chart-line"></i></div>
+                    Recent Health Metrics
+                </h3>
+                {% if patient.recent_metrics %}
+                    {% for metric in patient.recent_metrics %}
+                        <div class="list-item">
+                            <strong>{{ metric.type }}:</strong> <span>{{ metric.value }}</span><br>
+                            <span>Date: {{ metric.date }}</span>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">No recent health metrics recorded.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        &copy; 2025 MedTrack. All rights reserved.
+    </footer>
+
+    <script>
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alertContainer');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert ${type}`;
+            alertDiv.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${message}`;
+            
+            alertContainer.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.style.opacity = '1';
+                alertDiv.style.transform = 'translateX(0)';
+            }, 10);
+            
+            setTimeout(() => {
+                alertDiv.style.opacity = '0';
+                alertDiv.style.transform = 'translateX(20px)';
+                setTimeout(() => alertDiv.remove(), 300);
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
