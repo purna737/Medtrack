@@ -1,27 +1,28 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 import boto3
 from boto3.dynamodb.conditions import Key
-from botocore.exceptions import ClientError
 from botocore.config import Config
 from werkzeug.security import generate_password_hash, check_password_hash
-import os
 import uuid
 from datetime import datetime
 import json
+import os
 
 app = Flask(__name__)
-app.secret_key = 'your_super_secret_key_here'
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "default-secret")
 
-# DynamoDB Local Setup (region updated to us-east-1)
-dynamodb = boto3.resource('dynamodb',
+# DynamoDB Local Setup (no access keys required)
+dynamodb = boto3.resource(
+    'dynamodb',
     region_name='us-east-1',
     endpoint_url='http://localhost:8000',
-    aws_access_key_id='dummy',
-    aws_secret_access_key='dummy',
     config=Config(signature_version='v4')
 )
 
-# Table names
+# SNS Setup
+sns = boto3.client('sns', region_name='us-east-1')
+SNS_TOPIC_ARN = 'arn:aws:sns:us-east-1:194722438347:Medtrack:220197cb-b067-4783-b855-ab18c5689fbc'  # Replace with your actual topic ARN
+
 TABLE_NAMES = {
     'users': 'MedTrackUsers',
     'appointments': 'MedTrackAppointments',
@@ -29,7 +30,6 @@ TABLE_NAMES = {
     'metrics': 'MedTrackHealthMetrics'
 }
 
-# Auto-create DynamoDB tables
 def ensure_tables():
     existing_tables = dynamodb.meta.client.list_tables()['TableNames']
 
@@ -118,13 +118,13 @@ appointments_table = dynamodb.Table(TABLE_NAMES['appointments'])
 diagnoses_table = dynamodb.Table(TABLE_NAMES['diagnoses'])
 metrics_table = dynamodb.Table(TABLE_NAMES['metrics'])
 
-# Helpers
+# Helper functions
+
 def get_user_by_email(email):
     try:
-        response = users_table.get_item(Key={'email': email})
-        return response.get('Item')
+        return users_table.get_item(Key={'email': email}).get('Item')
     except Exception as e:
-        print("Get User Error:", e)
+        print("Error fetching user:", e)
         return None
 
 def create_user(name, email, password_hash, role):
@@ -139,51 +139,45 @@ def create_user(name, email, password_hash, role):
         })
         return True
     except Exception as e:
-        print("Create User Error:", e)
+        print("Error creating user:", e)
         return False
 
 def get_all_doctors():
     try:
-        response = users_table.query(
+        return users_table.query(
             IndexName='role-index',
             KeyConditionExpression=Key('role').eq('doctor')
-        )
-        return response.get('Items', [])
+        ).get('Items', [])
     except Exception as e:
-        print("Fetch doctors error:", e)
+        print("Error fetching doctors:", e)
         return []
 
 def get_appointments_for_patient(patient_id):
     try:
-        response = appointments_table.query(
+        return appointments_table.query(
             IndexName='patient_id-index',
             KeyConditionExpression=Key('patient_id').eq(patient_id)
-        )
-        return response.get('Items', [])
+        ).get('Items', [])
     except Exception as e:
-        print("Error getting appointments:", e)
+        print("Error fetching appointments:", e)
         return []
 
 def get_patient_details(patient_id):
     try:
-        response = users_table.scan(
-            FilterExpression=Key('user_id').eq(patient_id)
-        )
-        items = response.get('Items', [])
-        return items[0] if items else None
+        result = users_table.scan(FilterExpression=Key('user_id').eq(patient_id))
+        return result['Items'][0] if result['Items'] else None
     except Exception as e:
-        print("Error getting patient details:", e)
+        print("Error fetching patient:", e)
         return None
 
 def get_health_metrics_for_patient(patient_id):
     try:
-        response = metrics_table.query(
+        return metrics_table.query(
             IndexName='patient_id-index',
             KeyConditionExpression=Key('patient_id').eq(patient_id),
             Limit=3,
             ScanIndexForward=False
-        )
-        return response.get('Items', [])
+        ).get('Items', [])
     except Exception as e:
         print("Error fetching metrics:", e)
         return []
@@ -204,9 +198,9 @@ def contactus():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
-        role = request.form.get('role')
+        email = request.form['email']
+        password = request.form['password']
+        role = request.form['role']
 
         user = get_user_by_email(email)
         if not user or user['role'] != role or not check_password_hash(user['password_hash'], password):
@@ -219,6 +213,7 @@ def login():
             'user_role': user['role']
         })
         return redirect(url_for('patient_dashboard' if role == 'patient' else 'doctor_dashboard'))
+
     return render_template('login.html')
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -231,17 +226,14 @@ def signup():
         role = request.form.get('role', 'patient')
         terms = request.form.get('terms')
 
-        if not terms:
-            return "Please accept terms", 400
-        if password != confirm:
-            return "Passwords do not match", 400
-        if get_user_by_email(email):
-            return "Email already exists", 409
+        if not terms or password != confirm or get_user_by_email(email):
+            return "Signup error", 400
 
         hashed = generate_password_hash(password)
         if create_user(name, email, hashed, role):
             return redirect(url_for('login'))
         return "Signup failed", 500
+
     return render_template('signup.html')
 
 @app.route('/logout')
@@ -269,6 +261,11 @@ def appointment():
         }
         try:
             appointments_table.put_item(Item=data)
+
+            # SNS notification
+            message = f"New appointment booked by {session['user_name']} on {data['appointment_date']} at {data['appointment_time']}."
+            sns.publish(TopicArn=SNS_TOPIC_ARN, Message=message, Subject="New Appointment")
+
             return "Appointment booked successfully", 200
         except Exception as e:
             return f"Booking failed: {e}", 500
